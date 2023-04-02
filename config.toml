@@ -2,7 +2,7 @@ baseURL      = "https://lostinsoba.com"
 title        = "lostinsoba"
 languageCode = "en"
 theme        = "LoveIt"
-publishDir   = "doc"
+publishDir   = "docs"
 
 [author]
   name  = "lostinsoba"
