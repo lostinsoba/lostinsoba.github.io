@@ -1,8 +1,0 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>Tags - Tag - </title>
-        <link>https://lostinsoba.com/tags/</link>
-        <description>Tags - Tag - </description>
-        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>lostinsoba@gmail.com (lostinsoba)</managingEditor>
-            <webMaster>lostinsoba@gmail.com (lostinsoba)</webMaster><atom:link href="https://lostinsoba.com/tags/" rel="self" type="application/rss+xml" /></channel>
-</rss>

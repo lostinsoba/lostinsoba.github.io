@@ -1,0 +1,101 @@
+baseURL      = "https://lostinsoba.com"
+title        = "lostinsoba"
+languageCode = "en"
+theme        = "LoveIt"
+publishDir   = "doc"
+
+[author]
+  name  = "lostinsoba"
+  link  = "/lostinsoba/"
+
+[menu]
+  [[menu.main]]
+    weight     = 1
+    identifier = "posts"
+    name       = "Posts"
+    url        = "/posts/"
+  [[menu.main]]
+    weight     = 2
+    identifier = "tags"
+    name       = "Tags"
+    url        = "/tags/"
+
+[params]
+  defaultTheme = "dark"
+  dateFormat   = "2006-01-02"
+  description  = "lostinsoba"
+  [params.header]
+    desktopMode = "auto"
+    mobileMode = "auto"
+    [params.header.title]
+      name = "lostinsoba"
+  [params.footer]
+    enable    = true
+    hugo      = false
+    copyright = true
+    author    = true
+    since     = 2023
+  [params.section]
+    paginate   = 20
+    dateFormat = "01-02"
+  [params.list]
+    paginate   = 20
+    dateFormat = "01-02"
+  [params.app]
+    noFavicon  = true
+    svgFavicon = ""
+    themeColor = "#ffffff"
+    iconColor  = "#5bbad5"
+    tileColor  = "#da532c"
+  [params.search]
+    enable     = false
+  [params.home]
+    [params.home.profile]
+      enable = false
+  [params.page]
+    hiddenFromHomePage = false
+    hiddenFromSearch   = false
+    twemoji            = false
+    lightgallery       = false
+    ruby               = false
+    fraction           = false
+    fontawesome        = false
+    linkToMarkdown     = false
+    rssFullText        = false
+    [params.page.share]
+      enable = false
+    [params.page.toc]
+      enable     = true
+      keepStatic = false
+      auto       = true
+    [params.page.code]
+      copy          = true
+      maxShownLines = 50
+    [params.page.math]
+      enable               = true
+      inlineLeftDelimiter  = ""
+      inlineRightDelimiter = ""
+      blockLeftDelimiter   = ""
+      blockRightDelimiter  = ""
+      copyTex              = true
+      mhchem               = true
+
+[markup]
+  [markup.highlight]
+    anchorLineNos      = false
+    codeFences         = true
+    guessSyntax        = false
+    hl_Lines           = ""
+    hl_inline          = false
+    lineAnchors        = ""
+    lineNoStart        = 1
+    lineNos            = false
+    lineNumbersInTable = false
+    noClasses          = false
+    noHl               = false
+    style              = "nord"
+    tabWidth           = 4
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel   = 6
+
