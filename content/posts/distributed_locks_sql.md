@@ -136,7 +136,7 @@ insert into task_state (id, queue_id, ts) values ('task_c', 'hourly', 1445412480
 This approach requires a worker to have knowledge about how frequently tasks should be executed and calculate:
 
 - current timestamp
-- next execution timestamp (`next_ts` + duration, durations like (1*24, 2*24..) hours are more suitable)
+- next execution timestamp (`next_ts` + duration, durations like (24, 48..) hours are more suitable)
 
 and perform the following query by some specified interval (ex. every hour)
 
