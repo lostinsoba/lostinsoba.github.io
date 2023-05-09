@@ -42,6 +42,7 @@ publishDir   = "docs"
     paginate   = 20
     dateFormat = "01-02"
   [params.app]
+    title      = "lostinsoba"
     noFavicon  = true
     svgFavicon = ""
     themeColor = "#ffffff"
@@ -96,6 +97,6 @@ publishDir   = "docs"
     style              = "nord"
     tabWidth           = 4
   [markup.tableOfContents]
-    startLevel = 1
+    startLevel = 2
     endLevel   = 6
 

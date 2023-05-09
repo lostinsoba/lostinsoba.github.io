@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "style.min.css",
-	"sourceRoot": "/home/timur/Documents/gh_lostinsoba/lostinsoba.github.io",
+	"sourceRoot": "/home/lostinsoba/go/src/github.com/lostinsoba/lostinsoba.github.io",
 	"sources": [
 		"themes/LoveIt/assets/css/style.scss",
 		"themes/LoveIt/assets/lib/normalize/normalize.css",

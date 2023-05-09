@@ -8,14 +8,13 @@
 <meta property="og:description" content="Distributed locks using SQL based RDBMS" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://lostinsoba.com/posts/distributed_locks_sql/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-02-26T20:58:09+06:00" />
-<meta property="article:modified_time" content="2023-02-26T20:58:09+06:00" /><meta property="og:site_name" content="My cool site" />
-
+<meta property="article:published_time" content="2023-05-09T23:31:40+06:00" />
+<meta property="article:modified_time" content="2023-05-09T23:31:40+06:00" /><meta property="og:site_name" content="My cool site" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Distributed locks: SQL"/>
 <meta name="twitter:description" content="Distributed locks using SQL based RDBMS"/>
-<meta name="application-name" content="My cool site">
-<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="canonical" href="https://lostinsoba.com/posts/distributed_locks_sql/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<meta name="application-name" content="lostinsoba">
+<meta name="apple-mobile-web-app-title" content="lostinsoba"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="canonical" href="https://lostinsoba.com/posts/distributed_locks_sql/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -26,8 +25,8 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/lostinsoba.com\/posts\/distributed_locks_sql\/"
-        },"genre": "posts","keywords": "postgres, mysql","wordcount":  385 ,
-        "url": "https:\/\/lostinsoba.com\/posts\/distributed_locks_sql\/","datePublished": "2023-02-26T20:58:09+06:00","dateModified": "2023-02-26T20:58:09+06:00","publisher": {
+        },"genre": "posts","keywords": "postgres, mysql","wordcount":  912 ,
+        "url": "https:\/\/lostinsoba.com\/posts\/distributed_locks_sql\/","datePublished": "2023-05-09T23:31:40+06:00","dateModified": "2023-05-09T23:31:40+06:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
                 "@type": "Person",
@@ -68,8 +67,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Distributed locks: SQL</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="/lostinsoba/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>lostinsoba</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2023-02-26">2023-02-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;385 words&nbsp;
-                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;2 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2023-05-09">2023-05-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;912 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -77,231 +76,195 @@
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
-    <li><a href="#sql">SQL</a>
+    <li><a href="#locks">Locks</a>
       <ul>
-        <li><a href="#mutex">Mutex</a>
-          <ul>
-            <li>
-              <ul>
-                <li><a href="#change-the-mutex-state">Change the mutex state</a></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li><a href="#task-queue">Task queue</a>
-          <ul>
-            <li><a href="#with-external-schedule">With external schedule</a>
-              <ul>
-                <li><a href="#change-queued-task-states">Change queued task states</a></li>
-              </ul>
-            </li>
-            <li><a href="#with-internal-schedule">With internal schedule</a>
-              <ul>
-                <li><a href="#capture-task-by-setting-next-timestamp">Capture task by setting next timestamp</a></li>
-                <li><a href="#capture-task-by-checking-previous-timestamp">Capture task by checking previous timestamp</a></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li><a href="#state-transition">State transition</a>
-          <ul>
-            <li>
-              <ul>
-                <li><a href="#change-task-status-by-id">Change task status by ID</a></li>
-                <li><a href="#capture-batch-of-available-tasks">Capture batch of available tasks</a></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
+        <li><a href="#mutex">Mutex</a></li>
+        <li><a href="#timeout">Timeout</a></li>
+        <li><a href="#state-transition">State transition</a></li>
+      </ul>
+    </li>
+    <li><a href="#extensions">Extensions</a>
+      <ul>
+        <li><a href="#retries">Retries</a></li>
+        <li><a href="#queues">Queues</a></li>
       </ul>
     </li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><h1 id="sql">SQL</h1>
-<blockquote>
-<p>Description</p>
-</blockquote>
-<p>Basically, it&rsquo;s just any update operation that returns the number of rows affected</p>
-<h2 id="mutex">Mutex</h2>
-<p>In this case we have only 2 states (acquired/released), so in our example we&rsquo;re going to use a special boolean field to acquire the lock:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="n">id</span><span class="w">       </span><span class="nb">text</span><span class="w">    </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w"> </span><span class="c1">-- required, must be unique
-</span><span class="c1"></span><span class="w">  </span><span class="n">acquired</span><span class="w"> </span><span class="nb">boolean</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w">  </span><span class="c1">-- &lt;- mutex
-</span><span class="c1"></span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- CREATE TABLE
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">task_state_unique_id</span><span class="w"> </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- ALTER TABLE
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_c&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span></code></pre></div><h4 id="change-the-mutex-state">Change the mutex state</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- $1 = true (acquire)
-</span><span class="c1">-- $1 = false (release)
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
-</span><span class="w"></span><span class="c1">-- UPDATE 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
-</span><span class="w"></span><span class="c1">-- UPDATE 0
-</span></code></pre></div><h2 id="task-queue">Task queue</h2>
-<p>This case demonstrates a simple API for capturing tasks from different queues:</p>
-<h3 id="with-external-schedule">With external schedule</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="n">id</span><span class="w">       </span><span class="nb">text</span><span class="w">    </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
-</span><span class="w">  </span><span class="n">queue_id</span><span class="w"> </span><span class="nb">text</span><span class="w">    </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w"> </span><span class="c1">-- &lt;- will be used in conditional statement
-</span><span class="c1"></span><span class="w">  </span><span class="n">acquired</span><span class="w"> </span><span class="nb">boolean</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w">
-</span><span class="w"></span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- CREATE TABLE
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">task_unique_id</span><span class="w"> </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- ALTER TABLE
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;queue_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;queue_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;queue_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span></code></pre></div><h4 id="change-queued-task-states">Change queued task states</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- $1 = true (acquire)
-</span><span class="c1">-- $1 = false (release)
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
-</span><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task_state</span><span class="w">
-</span><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">any</span><span class="p">(</span><span class="nb">array</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;queue_a&#39;</span><span class="p">])</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
-</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">--   id    
-</span><span class="c1">----------
-</span><span class="c1">-- task_a
-</span><span class="c1">-- task_b
-</span><span class="c1">-- (2 rows)
-</span><span class="c1">-- UPDATE 2
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
-</span><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task_state</span><span class="w">
-</span><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">any</span><span class="p">(</span><span class="nb">array</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;queue_a&#39;</span><span class="p">])</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
-</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">-- (0 rows)
-</span><span class="c1">-- UPDATE 0
-</span></code></pre></div><h3 id="with-internal-schedule">With internal schedule</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="n">id</span><span class="w">       </span><span class="nb">text</span><span class="w">    </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
-</span><span class="w">  </span><span class="n">queue_id</span><span class="w"> </span><span class="nb">text</span><span class="w">    </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
-</span><span class="w">  </span><span class="n">ts</span><span class="w">       </span><span class="nb">bigint</span><span class="w">  </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="c1">-- &lt;- task execution timestamp (next_ts, last_ts)
-</span><span class="c1"></span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- CREATE TABLE
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">task_unique_id</span><span class="w"> </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- ALTER TABLE
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;daily&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1445412480</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;daily&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1445412480</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;hourly&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1445412480</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span></code></pre></div><h4 id="capture-task-by-setting-next-timestamp">Capture task by setting next timestamp</h4>
-<p>This approach requires a worker to have knowledge about how frequently tasks should be executed and calculate:</p>
+<p>This post contains information about locking techniques using native mechanisms provided by SQL RDBMS<br>
+Chosen dialect is PostgreSQL, but mentioned snippets can be easily adopted to other management systems</p>
+<table>
+<thead>
+<tr>
+<th>Lock type</th>
+<th>API interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutex</td>
+<td><code>Acquire(taskID string) (bool, error)</code> <!-- raw HTML omitted --> <code>Release(taskID string) (bool, error)</code></td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td><code>Acquire(taskID string) (bool error)</code></td>
+</tr>
+<tr>
+<td>State transition</td>
+<td><code>SetStatus(taskID string, status int) error</code> <!-- raw HTML omitted --> <code>Capture(limit int) ([]Task, error)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="locks">Locks</h2>
+<h3 id="mutex">Mutex</h3>
+<p>In this case we only have 2 states:</p>
 <ul>
-<li>current timestamp</li>
-<li>next execution timestamp (<code>next_ts</code> + duration, durations like (24, 48..) hours are more suitable)</li>
+<li>acquired</li>
+<li>released</li>
 </ul>
-<p>and perform the following query by some specified interval (ex. every hour)</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- $1 = next execution timestamp
-</span><span class="c1">-- $2 = current timestamp
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">next_ts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
-</span><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task_state</span><span class="w">
-</span><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;daily&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">next_ts</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="err">$</span><span class="mi">2</span><span class="w">
-</span><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
-</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">--   id   |  next_ts     
-</span><span class="c1">----------+------------
-</span><span class="c1">-- task_a | 1445412540
-</span><span class="c1">-- task_b | 1445412540
-</span><span class="c1">-- (2 rows)
-</span><span class="c1">-- UPDATE 2
-</span></code></pre></div><h4 id="capture-task-by-checking-previous-timestamp">Capture task by checking previous timestamp</h4>
-<p>Otherwise, we can simply check if the required amount of time has passed</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- $1 = current timestamp
-</span><span class="c1">-- $2 = current timestamp - duration
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">last_ts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
-</span><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task_state</span><span class="w">
-</span><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;hourly&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">last_ts</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="err">$</span><span class="mi">2</span><span class="w">
-</span><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
-</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">--   id    
-</span><span class="c1">----------
-</span><span class="c1">-- task_c
-</span><span class="c1">-- (1 row)
-</span><span class="c1">-- UPDATE 1
-</span></code></pre></div><h2 id="state-transition">State transition</h2>
-<p>This approach provides API that is more flexible for customizations:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- task_status will be used as an atomic int
-</span><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">task_status</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">enum</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;idle&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;in_progress&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;done&#39;</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- task stores atomic with corresponding task identifier
-</span><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="n">id</span><span class="w">     </span><span class="nb">text</span><span class="w">        </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
-</span><span class="w">  </span><span class="n">status</span><span class="w"> </span><span class="n">task_status</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w">
-</span><span class="w"></span><span class="p">);</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;idle&#39;</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;done&#39;</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="c1">-- INSERT 0 1
-</span></code></pre></div><h4 id="change-task-status-by-id">Change task status by ID</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- $1 = required task status
-</span><span class="c1"></span><span class="w">
-</span><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
-</span><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">-- UPDATE 1
-</span></code></pre></div><h4 id="capture-batch-of-available-tasks">Capture batch of available tasks</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;in_progress&#39;</span><span class="w">
-</span><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
-</span><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task</span><span class="w">
-</span><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">any</span><span class="p">(</span><span class="nb">array</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;idle&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span><span class="p">])</span><span class="w">
-</span><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
-</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">--    id   |   status
-</span><span class="c1">-----------+-------------
-</span><span class="c1">--  task_a | in_progress
-</span><span class="c1">-- (1 row)
-</span><span class="c1">-- UPDATE 1
-</span></code></pre></div></div><div class="post-footer" id="post-footer">
+<p>so in our example we&rsquo;re going to use a special boolean field to acquire the lock:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w">       </span><span class="nb">text</span><span class="w">    </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w"> </span><span class="c1">-- required, must be unique
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">acquired</span><span class="w"> </span><span class="nb">boolean</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w">  </span><span class="c1">-- &lt;- mutex
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- CREATE TABLE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">task_state_unique_id</span><span class="w"> </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- ALTER TABLE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">acquired</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_c&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span></code></pre></div><p>Changing the mutex state:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- $1 = true (acquire)
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- $1 = false (release)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 1 (lock acquired, only one of the clients will receive this)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 0 (lock already acquired by previous request)
+</span></span></span></code></pre></div><blockquote>
+<p>Since it&rsquo;s not guaranteed that client will be able to release the lock, this approach is more suitable for cases when it&rsquo;s necessary to cancel next task processing if previous attempt did not succeed</p>
+</blockquote>
+<h3 id="timeout">Timeout</h3>
+<p>To implement this type of lock we need to store 2 variables:</p>
+<ul>
+<li>timestamp (unix epoch)</li>
+<li>timeout (duration, same units as timestamp)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w">       </span><span class="nb">text</span><span class="w">   </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">ts</span><span class="w">       </span><span class="nb">bigint</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w"> </span><span class="c1">-- time we acquired the lock
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">timeout</span><span class="w">  </span><span class="nb">bigint</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w">  </span><span class="c1">-- time interval lock will remain exclusive for client
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- CREATE TABLE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">task_unique_id</span><span class="w"> </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- ALTER TABLE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;daily_task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1445412480</span><span class="p">,</span><span class="w"> </span><span class="mi">86400</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;daily_task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1445412480</span><span class="p">,</span><span class="w"> </span><span class="mi">86400</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;hourly_task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1445412480</span><span class="p">,</span><span class="w"> </span><span class="mi">3600</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span></code></pre></div><p>It doesn&rsquo;t require client to release the lock this time, lock will simply be re-acquired when passed <code>ts</code> value is higher than sum of stored <code>ts</code> and <code>timeout</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- $1 = current timestamp
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;hourly_task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">timeout</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 1
+</span></span></span></code></pre></div><h3 id="state-transition">State transition</h3>
+<p>This approach is quite similar to the previous one, but now we are going to use:</p>
+<ul>
+<li>current task status (instead of timestamp)</li>
+<li>list of task statuses we can use to start processing a task</li>
+</ul>
+<p>For example, consider having the following statuses:</p>
+<ul>
+<li>done (also initial status)</li>
+<li>in_progress (client exclusive)</li>
+<li>failed</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- task_status will be used as an atomic int
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">task_status</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">enum</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;done&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;in_progress&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- task stores atomic with corresponding task identifier
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w">     </span><span class="nb">text</span><span class="w">        </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">status</span><span class="w"> </span><span class="n">task_status</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;done&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;task_b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;done&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- INSERT 0 1
+</span></span></span></code></pre></div><p>so we can lock any of <code>done</code> and <code>failed</code> by using <code>in_progress</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;in_progress&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">any</span><span class="p">(</span><span class="nb">array</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;done&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span><span class="p">])</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--    id   |   status
+</span></span></span><span class="line"><span class="cl"><span class="c1">-----------+-------------
+</span></span></span><span class="line"><span class="cl"><span class="c1">--  task_a | in_progress
+</span></span></span><span class="line"><span class="cl"><span class="c1">--  task_b | in_progress
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- (1 row)
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- UPDATE 1
+</span></span></span></code></pre></div><p>and release the lock by setting <code>failed</code> or <code>done</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 1
+</span></span></span></code></pre></div><p>We can also add status <code>timeout</code> but there are two limitations:</p>
+<ol>
+<li>along with <code>failed</code> it&rsquo;s not guaranteed that client will be able to set this state<br>
+so it takes to set the timeout value for every task and launch another worker that will be setting the correct task statuses on specified interval</li>
+<li>it&rsquo;s also possible to compute status <code>timeout</code> (instead of storing it in database) inside read operations<br>
+but that can lead to problems related with cases when API and database return different statuses</li>
+</ol>
+<h2 id="extensions">Extensions</h2>
+<h3 id="retries">Retries</h3>
+<p>In addition to already existing condition required to acquire the lock, we could also add a number of retries left:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- $1 = retries_left for already existing tasks
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="n">retries_left</span><span class="w"> </span><span class="nb">integer</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">retries_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>and to the <code>Acquire/Capture</code> interface:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">retries_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">retries_left</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">retries_left</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span></code></pre></div><p>so every time we acquire the lock this value will be decremented until it reach the zero</p>
+<h3 id="queues">Queues</h3>
+<p>As it was mentioned earlier (in State transition) we could also acquire multiple locks, but within any other type of lock:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">task</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">where</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">limit</span><span class="w"> </span><span class="mi">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w">
+</span></span></span></code></pre></div><p>this can be achieved with adding new field to the table:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- $1 = queue for already existing tasks
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">queue_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>and/or changing the existing unique index for task ids if you want to make them unique inside queues:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">drop</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">task_unique_id</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="k">constraint</span><span class="w"> </span><span class="n">queue_task_unique_id</span><span class="w"> </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">queue_id</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>what will also require to rewrite the <code>Acquire</code> query to make it differ between similar ids across different queues</p>
+</div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2023-02-26</span>
+                <span>Updated on 2023-05-09</span>
             </div></div>
         <div class="post-info-line">
             <div class="post-info-md"></div>

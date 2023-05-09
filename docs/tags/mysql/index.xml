@@ -3,10 +3,10 @@
         <title>mysql - Tag - lostinsoba</title>
         <link>https://lostinsoba.com/tags/mysql/</link>
         <description>mysql - Tag - lostinsoba</description>
-        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 26 Feb 2023 20:58:09 &#43;0600</lastBuildDate><atom:link href="https://lostinsoba.com/tags/mysql/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 09 May 2023 23:31:40 &#43;0600</lastBuildDate><atom:link href="https://lostinsoba.com/tags/mysql/" rel="self" type="application/rss+xml" /><item>
     <title>Distributed locks: SQL</title>
     <link>https://lostinsoba.com/posts/distributed_locks_sql/</link>
-    <pubDate>Sun, 26 Feb 2023 20:58:09 &#43;0600</pubDate>
+    <pubDate>Tue, 09 May 2023 23:31:40 &#43;0600</pubDate>
     <author>lostinsoba</author>
     <guid>https://lostinsoba.com/posts/distributed_locks_sql/</guid>
     <description><![CDATA[Distributed locks using SQL based RDBMS]]></description>
