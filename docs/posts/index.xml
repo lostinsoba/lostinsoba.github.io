@@ -3,13 +3,21 @@
         <title>All Posts - lostinsoba</title>
         <link>https://lostinsoba.com/posts/</link>
         <description>All Posts | lostinsoba</description>
-        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 09 May 2023 23:31:40 &#43;0600</lastBuildDate><atom:link href="https://lostinsoba.com/posts/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 12 Jun 2023 02:27:21 &#43;0600</lastBuildDate><atom:link href="https://lostinsoba.com/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>Distributed locks: NoSQL</title>
+    <link>https://lostinsoba.com/posts/distributed_locks_nosql/</link>
+    <pubDate>Mon, 12 Jun 2023 02:27:21 &#43;0600</pubDate>
+    <author>lostinsoba</author>
+    <guid>https://lostinsoba.com/posts/distributed_locks_nosql/</guid>
+    <description><![CDATA[Distributed locks using NoSQL based DBMS]]></description>
+</item>
+<item>
     <title>Distributed locks: SQL</title>
     <link>https://lostinsoba.com/posts/distributed_locks_sql/</link>
     <pubDate>Tue, 09 May 2023 23:31:40 &#43;0600</pubDate>
     <author>lostinsoba</author>
     <guid>https://lostinsoba.com/posts/distributed_locks_sql/</guid>
-    <description><![CDATA[Distributed locks using SQL based RDBMS]]></description>
+    <description><![CDATA[Distributed locks using SQL based DBMS]]></description>
 </item>
 </channel>
 </rss>

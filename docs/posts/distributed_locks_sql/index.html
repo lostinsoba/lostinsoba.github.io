@@ -5,16 +5,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <title>Distributed locks: SQL - lostinsoba</title><meta name="Description" content="lostinsoba"><meta property="og:title" content="Distributed locks: SQL" />
-<meta property="og:description" content="Distributed locks using SQL based RDBMS" />
+<meta property="og:description" content="Distributed locks using SQL based DBMS" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://lostinsoba.com/posts/distributed_locks_sql/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-05-09T23:31:40+06:00" />
-<meta property="article:modified_time" content="2023-05-09T23:31:40+06:00" /><meta property="og:site_name" content="My cool site" />
+<meta property="article:modified_time" content="2023-05-09T23:31:40+06:00" /><meta property="og:site_name" content="lostinsoba" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Distributed locks: SQL"/>
-<meta name="twitter:description" content="Distributed locks using SQL based RDBMS"/>
+<meta name="twitter:description" content="Distributed locks using SQL based DBMS"/>
 <meta name="application-name" content="lostinsoba">
-<meta name="apple-mobile-web-app-title" content="lostinsoba"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="canonical" href="https://lostinsoba.com/posts/distributed_locks_sql/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<meta name="apple-mobile-web-app-title" content="lostinsoba"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="canonical" href="https://lostinsoba.com/posts/distributed_locks_sql/" /><link rel="next" href="https://lostinsoba.com/posts/distributed_locks_nosql/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -25,7 +25,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/lostinsoba.com\/posts\/distributed_locks_sql\/"
-        },"genre": "posts","keywords": "postgres, mysql","wordcount":  912 ,
+        },"genre": "posts","keywords": "postgres","wordcount":  912 ,
         "url": "https:\/\/lostinsoba.com\/posts\/distributed_locks_sql\/","datePublished": "2023-05-09T23:31:40+06:00","dateModified": "2023-05-09T23:31:40+06:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -91,9 +91,8 @@
     </li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><h1 id="sql">SQL</h1>
-<p>This post contains information about locking techniques using native mechanisms provided by SQL RDBMS<br>
-Chosen dialect is PostgreSQL, but mentioned snippets can be easily adopted to other management systems</p>
+            </div><div class="content" id="content"><p>This post contains information about locking techniques using native mechanisms provided by RDBMS<br>
+Chosen dialect is PostgreSQL, but following snippets can be easily adopted to other management systems</p>
 <table>
 <thead>
 <tr>
@@ -146,10 +145,10 @@ Chosen dialect is PostgreSQL, but mentioned snippets can be easily adopted to ot
 </span></span></span><span class="line"><span class="cl"><span class="c1">-- $1 = false (release)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 1 (lock acquired, only one of the clients will receive this)
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 1 // lock acquired, only one of the clients will receive this
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">task_state</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">acquired</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="p">;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 0 (lock already acquired by previous request)
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 0 // lock already acquired by previous request
 </span></span></span></code></pre></div><blockquote>
 <p>Since it&rsquo;s not guaranteed that client will be able to release the lock, this approach is more suitable for cases when it&rsquo;s necessary to cancel next task processing if previous attempt did not succeed</p>
 </blockquote>
@@ -220,8 +219,8 @@ Chosen dialect is PostgreSQL, but mentioned snippets can be easily adopted to ot
 </span></span></span><span class="line"><span class="cl"><span class="c1">-----------+-------------
 </span></span></span><span class="line"><span class="cl"><span class="c1">--  task_a | in_progress
 </span></span></span><span class="line"><span class="cl"><span class="c1">--  task_b | in_progress
-</span></span></span><span class="line"><span class="cl"><span class="c1">-- (1 row)
-</span></span></span><span class="line"><span class="cl"><span class="c1">-- UPDATE 1
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- (2 rows)
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- UPDATE 2
 </span></span></span></code></pre></div><p>and release the lock by setting <code>failed</code> or <code>done</code>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">update</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;task_a&#39;</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- UPDATE 1
@@ -275,13 +274,14 @@ but that can lead to problems related with cases when API and database return di
     </div>
 
     <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/postgres/">postgres</a>,&nbsp;<a href="/tags/mysql/">mysql</a></section>
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/postgres/">postgres</a></section>
         <section>
             <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
         </section>
     </div>
 
-    <div class="post-nav"></div>
+    <div class="post-nav">
+            <a href="/posts/distributed_locks_nosql/" class="next" rel="next" title="Distributed locks: NoSQL">Distributed locks: NoSQL<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 </article></div>
             </main><footer class="footer">

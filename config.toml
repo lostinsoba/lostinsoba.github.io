@@ -21,9 +21,10 @@ publishDir   = "docs"
     url        = "/tags/"
 
 [params]
+  title        = "lostinsoba"
+  description  = "lostinsoba"
   defaultTheme = "dark"
   dateFormat   = "2006-01-02"
-  description  = "lostinsoba"
   [params.header]
     desktopMode = "auto"
     mobileMode = "auto"

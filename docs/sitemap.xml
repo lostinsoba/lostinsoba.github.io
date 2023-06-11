@@ -2,11 +2,12 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
+            <loc>https://lostinsoba.com/posts/distributed_locks_nosql/</loc><lastmod>2023-06-12T02:27:21&#43;06:00</lastmod></url><url>
+            <loc>https://lostinsoba.com/</loc><lastmod>2023-06-12T02:27:21&#43;06:00</lastmod></url><url>
+            <loc>https://lostinsoba.com/posts/</loc><lastmod>2023-06-12T02:27:21&#43;06:00</lastmod></url><url>
+            <loc>https://lostinsoba.com/tags/redis/</loc><lastmod>2023-06-12T02:27:21&#43;06:00</lastmod></url><url>
+            <loc>https://lostinsoba.com/tags/</loc><lastmod>2023-06-12T02:27:21&#43;06:00</lastmod></url><url>
             <loc>https://lostinsoba.com/posts/distributed_locks_sql/</loc><lastmod>2023-05-09T23:31:40&#43;06:00</lastmod></url><url>
-            <loc>https://lostinsoba.com/</loc><lastmod>2023-05-09T23:31:40&#43;06:00</lastmod></url><url>
-            <loc>https://lostinsoba.com/tags/mysql/</loc><lastmod>2023-05-09T23:31:40&#43;06:00</lastmod></url><url>
             <loc>https://lostinsoba.com/tags/postgres/</loc><lastmod>2023-05-09T23:31:40&#43;06:00</lastmod></url><url>
-            <loc>https://lostinsoba.com/posts/</loc><lastmod>2023-05-09T23:31:40&#43;06:00</lastmod></url><url>
-            <loc>https://lostinsoba.com/tags/</loc><lastmod>2023-05-09T23:31:40&#43;06:00</lastmod></url><url>
             <loc>https://lostinsoba.com/lostinsoba/</loc><lastmod>2023-04-02T20:01:41&#43;06:00</lastmod></url><url>
             <loc>https://lostinsoba.com/categories/</loc></url></urlset>

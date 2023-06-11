@@ -1,14 +1,12 @@
 ---
 title: "Distributed locks: SQL"
 date: 2023-05-09T23:31:40+06:00
-summary: "Distributed locks using SQL based RDBMS"
-tags: ["postgres", "mysql"]
+summary: "Distributed locks using SQL based DBMS"
+tags: ["postgres"]
 ---
 
-# SQL
-
-This post contains information about locking techniques using native mechanisms provided by SQL RDBMS  
-Chosen dialect is PostgreSQL, but mentioned snippets can be easily adopted to other management systems
+This post contains information about locking techniques using native mechanisms provided by RDBMS  
+Chosen dialect is PostgreSQL, but following snippets can be easily adopted to other management systems
 
 | Lock type        | API interface                                                                          |
 |------------------|----------------------------------------------------------------------------------------|
@@ -53,10 +51,10 @@ Changing the mutex state:
 -- $1 = false (release)
 
 update task_state set acquired = $1 where id = 'task_a' and acquired != $1;
--- UPDATE 1 (lock acquired, only one of the clients will receive this)
+-- UPDATE 1 // lock acquired, only one of the clients will receive this
 
 update task_state set acquired = $1 where id = 'task_a' and acquired != $1;
--- UPDATE 0 (lock already acquired by previous request)
+-- UPDATE 0 // lock already acquired by previous request
 ```
 
 > Since it's not guaranteed that client will be able to release the lock, this approach is more suitable for cases when it's necessary to cancel next task processing if previous attempt did not succeed 
@@ -139,8 +137,8 @@ where id in (
 -----------+-------------
 --  task_a | in_progress
 --  task_b | in_progress
--- (1 row)
--- UPDATE 1
+-- (2 rows)
+-- UPDATE 2
 ```
 
 and release the lock by setting `failed` or `done`:
