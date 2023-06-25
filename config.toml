@@ -23,6 +23,7 @@ publishDir   = "docs"
 [params]
   title        = "lostinsoba"
   description  = "lostinsoba"
+  images       = ["/card.png"]
   defaultTheme = "dark"
   dateFormat   = "2006-01-02"
   [params.header]
